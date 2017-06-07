@@ -11,6 +11,8 @@ import { MessageComponent } from './message/message.component';
 import { HeaderComponent } from './header/header.component';
 import { AuthService } from './auth.service';
 import { AuthGuardService } from './auth-guard.service';
+import { TimeService } from './time.service';
+import { PlanetService } from './planet.service';
 import { VisualisationComponent } from './visualisation/visualisation.component';
 
 @NgModule({
@@ -28,7 +30,7 @@ import { VisualisationComponent } from './visualisation/visualisation.component'
     HttpModule,
     BsDropdownModule.forRoot()
   ],
-  providers: [AuthGuardService, AuthService],
+  providers: [AuthGuardService, AuthService, TimeService, PlanetService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
