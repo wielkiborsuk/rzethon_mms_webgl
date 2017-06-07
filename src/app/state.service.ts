@@ -2,10 +2,18 @@ import { Injectable } from '@angular/core';
 import * as moment from 'moment/moment';
 
 @Injectable()
-export class TimeService {
+export class StateService {
 
   private DAY_MILLISECONDS = 24 * 60 * 60 * 1000;
-  private DIFF_2000_1970 = moment('2000-01-01').diff('1970-01-01', 'ms') - 3600000 - 86400000
+
+  public timeFactor = 1;
+  public d = this.unixTimeToDayFraction(new Date().getTime());
+  public prevRenderTime = new Date().getTime();
+  public planetNodes = [];
+  public msgNodes = [];
+  public msgs = [];
+  public isLeftMouseButtonDown = false;
+  public isArrowDownDown = false;
 
   constructor() { }
 
@@ -24,9 +32,5 @@ export class TimeService {
     let dayMs = t.milliseconds() + 1000*(t.seconds() + 60*(t.minutes() + 60*(t.hours())))
     let dayFraction = dayMs / this.DAY_MILLISECONDS
     return d + dayFraction
-  }
-
-  dayFractionToUnixTime(d) {
-    return Math.floor(d * this.DAY_MILLISECONDS + this.DIFF_2000_1970)
   }
 }
