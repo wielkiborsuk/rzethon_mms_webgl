@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { routing } from './app.routes';
+import { BsDropdownModule } from 'ng2-bootstrap';
 
 import { AppComponent } from './app.component';
 import { LoginComponent } from './login/login.component';
@@ -24,7 +25,8 @@ import { VisualisationComponent } from './visualisation/visualisation.component'
     routing,
     BrowserModule,
     FormsModule,
-    HttpModule
+    HttpModule,
+    BsDropdownModule.forRoot()
   ],
   providers: [AuthGuardService, AuthService],
   bootstrap: [AppComponent]

@@ -1,16 +1,16 @@
 <nav class="navbar navbar-default navbar-fixed-top">
   <div class="container">
-    <a class="navbar-brand" routerLink="/"><img src="../assets/logo.png"></a>
+    <a class="navbar-brand" routerLink="/"><span class="glyphicon glyphicon-home"></span></a>
     <ul class="nav navbar-nav navbar-right" *ngIf="auth.isLoggedIn()">
       <li class="nav-item">
-        <a class="nav-link" routerLink="/activities" routerLinkActive="active">Zajęcia</a>
+        <a class="nav-link" routerLink="/message" routerLinkActive="active">Wiadomości</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" routerLink="/users" routerLinkActive="active">Studenci</a>
+        <a class="nav-link" routerLink="/visualisation" routerLinkActive="active">Wizualizacja</a>
       </li>
       <li class="nav-item dropdown" dropdown>
           <a id="user-button" class="btn btn-link dropdownToggle" dropdownToggle>
-            {{auth.login}} <span class="caret"></span>
+            {{auth.getCurrentUser()}} <span class="caret"></span>
           </a>
           <ul class="dropdown-menu" role="menu" aria-labelledby="user-button">
             <li role="menuitem"><a class="dropdown-item" href="" (click)="logout()">Wyloguj się</a></li>
