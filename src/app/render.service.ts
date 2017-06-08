@@ -14,13 +14,19 @@ export class RenderService {
   private DAY_MILLISECONDS = 24 * 60 * 60 * 1000;
   private DIFF_2000_1970 = moment('2000-01-01').diff('1970-01-01', 'ms') - 3600000 - 86400000
   private ASTRONOMICAL_UNIT = 149597870.7; //km
-  private LIGHT_SPEED_AU = 299792.458 / this.ASTRONOMICAL_UNIT; /*km per sec*/
+  private MESSAGE_RADIUS = 0.04;
+  public LIGHT_SPEED_AU = 299792.458 / this.ASTRONOMICAL_UNIT; /*km per sec*/
+  public CAMERA_ZOOM_SPEED = 0.08*4;
 
   public container;
   public camera;
   public scene;
   public renderer;
-  public viewState = { scale: 1, parallaxes: [] }
+  public viewState = { scale: 1, parallaxes: [], enablePlanetScaling: false }
+  public mouseX = 0;
+  public mouseY = 0;
+  public windowHalfX = window.innerWidth / 2;
+  public windowHalfY = window.innerHeight / 2;
 
   constructor(private planets: PlanetService, private assets: AssetService, private state: StateService) { }
 
@@ -53,14 +59,6 @@ export class RenderService {
     this.renderer.setSize(window.innerWidth, window.innerHeight)
     this.container.appendChild(this.renderer.domElement)
 
-    //document.addEventListener('keydown', onKeyDown, false)
-    //document.addEventListener('keyup', onKeyUp, false)
-    //document.addEventListener('mousemove', onDocumentMouseMove, false)
-    //document.addEventListener('mousedown', onDocumentMouseDown, false)
-    //document.addEventListener('mouseup', onDocumentMouseUp, false)
-    //document.addEventListener('mouseleave', onDocumentMouseLeave, false)
-    //document.addEventListener('mousewheel', onDocumentMouseWheel, false)
-    //window.addEventListener('resize', onWindowResize, false)
 
     //fetch(`${BACKEND_URL}/nodes`).then(res => {
       //res.json().then(json => {
@@ -100,6 +98,11 @@ export class RenderService {
     //setInterval(() => {
       //fetchSimulation()
     //}, SIM_FETCH_INTERVAL)
+  }
+
+  animate() {
+    requestAnimationFrame(this.animate)
+    this.render()
   }
 
   initBackground() {
@@ -288,6 +291,77 @@ export class RenderService {
     this.lerpPos(mesh.position, curNode.location, nextNode.location, factorBetweenNodes)
 
     return false
+  }
+
+  onMessageUpdated(evt) {
+    let msg = _.find(this.state.msgs, {id: evt.message.id})
+    let isNewMsg = !msg
+
+    if (isNewMsg) {
+      msg = evt.message
+
+      let texture = this.assets.textures["Message.jpg"]
+      let geometry = new THREE.SphereGeometry(this.MESSAGE_RADIUS, 40, 40)
+      let material = new THREE.MeshBasicMaterial({ map: texture, overdraw: 1 })
+      let mesh = new THREE.Mesh(geometry, material)
+
+      this.scene.add(mesh)
+
+      // now render lines!!111111 elo 3 2 0
+      let lines = []
+      for (let nodeIndex = 0; nodeIndex < msg.path.length-1; ++nodeIndex) {
+        let curNode = msg.path[nodeIndex]
+        let nextNode = msg.path[nodeIndex+1]
+
+        geometry = new THREE.Geometry()
+        geometry.vertices.push(
+          this.pointToVector3(curNode.location),
+          this.pointToVector3(nextNode.location)
+        )
+        geometry.colors = [new THREE.Color( 0x999999 ), new THREE.Color( 0x00ff11 )]
+        material = new THREE.LineBasicMaterial( { color: 0xffffff, opacity: 1, linewidth: 2, vertexColors: THREE.VertexColors } );
+        let line = new THREE.Line(geometry, material)
+        this.scene.add(line)
+        lines.push(line)
+      }
+
+      this.state.msgs.push({
+        id: msg.id,
+        mesh,
+        lines,
+        lastBackendData: msg
+      })
+    }
+    else {
+      // TODO update msg!
+    }
+  }
+
+  render() {
+    const curTime = new Date().getTime()
+    const prevTime = this.state.prevRenderTime
+    let deltaTime = (curTime - prevTime)/1000/60/60/24
+
+    if (curTime - prevTime > 500) {
+      deltaTime = 0.015/60/60/24 //15 ms
+    }
+
+    this.state.d += (this.state.timeFactor * deltaTime)
+    this.state.prevRenderTime = curTime
+
+    this.updatePositions()
+
+    if (this.state.isLeftMouseButtonDown) {
+      this.camera.position.x -= (this.mouseX - this.camera.position.x) * 0.0001
+      this.camera.position.y += (this.mouseY - this.camera.position.y) * 0.0001
+
+      if (this.state.isArrowDownDown)
+        this.camera.lookAt(this.scene.position)
+
+      this.camera.updateProjectionMatrix()
+    }
+
+    this.renderer.render(this.scene, this.camera)
   }
 
   dayFractionToUnixTime(d) {
