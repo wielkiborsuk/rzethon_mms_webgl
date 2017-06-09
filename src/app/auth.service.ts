@@ -12,14 +12,19 @@ export class AuthService {
   }
 
   getCurrentUser() {
+    if (!this.username) {
+      this.username = localStorage.getItem('username');
+    }
     return this.username;
   }
 
   login (username: string) {
+    localStorage.setItem('username', username);
     this.username = username;
   }
 
   logout () {
     delete this.username;
+    localStorage.removeItem('username');
   }
 }
