@@ -6,6 +6,7 @@ export class StateService {
 
   private DAY_MILLISECONDS = 24 * 60 * 60 * 1000;
 
+  public BACKEND_URL = 'http://localhost:3000'
   public timeFactor = 1;
   public d = this.unixTimeToDayFraction(new Date().getTime());
   public prevRenderTime = new Date().getTime();

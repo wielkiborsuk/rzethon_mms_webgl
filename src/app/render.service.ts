@@ -15,6 +15,7 @@ export class RenderService {
   private DIFF_2000_1970 = moment('2000-01-01').diff('1970-01-01', 'ms') - 3600000 - 86400000
   private ASTRONOMICAL_UNIT = 149597870.7; //km
   private MESSAGE_RADIUS = 0.04;
+  private NODE_RADIUS = 0.05;
   public LIGHT_SPEED_AU = 299792.458 / this.ASTRONOMICAL_UNIT; /*km per sec*/
   public CAMERA_ZOOM_SPEED = 0.08*4;
 
@@ -58,57 +59,17 @@ export class RenderService {
     this.renderer.setPixelRatio(window.devicePixelRatio)
     this.renderer.setSize(window.innerWidth, window.innerHeight)
     this.container.appendChild(this.renderer.domElement)
-
-
-    //fetch(`${BACKEND_URL}/nodes`).then(res => {
-      //res.json().then(json => {
-        //for (let node of json.nodes) {
-          //const loc = {
-            //x: node.location_x,
-            //y: node.location_y,
-            //z: node.location_z
-          //}
-
-          //let texture = textures["Node.png"]
-          //let geometry = new THREE.SphereGeometry(NODE_RADIUS, 40, 40)
-          //let material = new THREE.MeshBasicMaterial({ map: texture, overdraw: 1 })
-          //let mesh = new THREE.Mesh(geometry, material)
-          //mesh.position.x = loc.x
-          //mesh.position.y = loc.y
-          //mesh.position.z = loc.z
-          //scene.add(mesh)
-
-          //state.msgNodes.push({ id: node.id, mesh })
-        //}
-      //})
-    //})
-
-    //function fetchSimulation() {
-      //fetch(`${BACKEND_URL}/simulations`).then(res => {
-        //res.json().then(json => {
-          //console.log(json);
-          //for (let msg of json.messages) {
-            //onMessageUpdated({message: msg})
-          //}
-        //})
-      //})
-    //}
-
-    //fetchSimulation()
-    //setInterval(() => {
-      //fetchSimulation()
-    //}, SIM_FETCH_INTERVAL)
   }
 
   animate() {
-    //requestAnimationFrame(this.animate)
+    requestAnimationFrame(this.animate.bind(this))
     this.render()
   }
 
   initBackground() {
     let geometry = new THREE.SphereGeometry(4000, 160, 90);
     let uniforms = {
-      texture: { type: 't', value: this.assets.loadTexture('background/Space.jpg') }
+      texture: { type: 't', value: this.assets.textures['background/Space.jpg'] }
     }
 
     let material = new THREE.ShaderMaterial( {
@@ -181,6 +142,20 @@ export class RenderService {
     this.scene.add(mesh)
 
     return node
+  }
+
+  initNode(id, loc) {
+    let texture = this.assets.textures["Node.png"]
+    let geometry = new THREE.SphereGeometry(this.NODE_RADIUS, 40, 40)
+    let material = new THREE.MeshBasicMaterial({ map: texture, overdraw: 1 })
+    let mesh = new THREE.Mesh(geometry, material)
+
+    mesh.position.x = loc.x
+    mesh.position.y = loc.y
+    mesh.position.z = loc.z
+    this.scene.add(mesh)
+
+    this.state.msgNodes.push({ id: id, mesh })
   }
 
   updatePositions() {
