@@ -101,7 +101,7 @@ export class RenderService {
   }
 
   animate() {
-    requestAnimationFrame(this.animate)
+    //requestAnimationFrame(this.animate)
     this.render()
   }
 

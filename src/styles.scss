@@ -1,5 +1,11 @@
 /* You can add global styles to this file, and also import other style files */
 
 body {
-  margin-top: 80px;
+  padding-top: 80px;
+}
+
+#container {
+  left: 0px;
+  top: 50px;
+  position: fixed;
 }

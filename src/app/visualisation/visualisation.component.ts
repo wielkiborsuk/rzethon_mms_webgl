@@ -16,14 +16,14 @@ export class VisualisationComponent implements OnInit {
   constructor(private render: RenderService, private state: StateService, private assets: AssetService) { }
 
   ngOnInit() {
-    document.addEventListener('keydown', this.onKeyDown, false)
-    document.addEventListener('keyup', this.onKeyUp, false)
-    document.addEventListener('mousemove', this.onDocumentMouseMove, false)
-    document.addEventListener('mousedown', this.onDocumentMouseDown, false)
-    document.addEventListener('mouseup', this.onDocumentMouseUp, false)
-    document.addEventListener('mouseleave', this.onDocumentMouseLeave, false)
-    document.addEventListener('mousewheel', this.onDocumentMouseWheel, false)
-    window.addEventListener('resize', this.onWindowResize, false)
+    //document.addEventListener('keydown', this.onKeyDown, false)
+    //document.addEventListener('keyup', this.onKeyUp, false)
+    //document.addEventListener('mousemove', this.onDocumentMouseMove, false)
+    //document.addEventListener('mousedown', this.onDocumentMouseDown, false)
+    //document.addEventListener('mouseup', this.onDocumentMouseUp, false)
+    //document.addEventListener('mouseleave', this.onDocumentMouseLeave, false)
+    //document.addEventListener('mousewheel', this.onDocumentMouseWheel, false)
+    //window.addEventListener('resize', this.onWindowResize, false)
 
     this.assets.preloadAssets().then(() => {
       this.render.init()
