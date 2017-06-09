@@ -108,7 +108,7 @@ export class RenderService {
   initBackground() {
     let geometry = new THREE.SphereGeometry(4000, 160, 90);
     let uniforms = {
-      texture: { type: 't', value: THREE.ImageUtils.loadTexture('assets/background/Space.jpg') }
+      texture: { type: 't', value: this.assets.loadTexture('background/Space.jpg') }
     }
 
     let material = new THREE.ShaderMaterial( {
@@ -119,7 +119,7 @@ export class RenderService {
 
     let skyBox = new THREE.Mesh(geometry, material)
     skyBox.scale.set(-1, 0.5, 0.9)
-    skyBox.eulerOrder = 'XZY'
+    skyBox.rotation.order = 'XZY'
     skyBox.renderDepth = 10000000.0
     this.scene.add(skyBox)
 
