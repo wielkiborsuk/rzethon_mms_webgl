@@ -82,7 +82,7 @@ export class VisualisationComponent implements OnInit {
 
   onKeyDown(evt) {
     if (evt.key == 'o') {
-      this.state.timeFactor /= 10
+      this.state.timeFactor = Math.max(1, this.state.timeFactor/10)
     }
     else if (evt.key == 'p') {
       this.state.timeFactor *= 10
@@ -93,8 +93,6 @@ export class VisualisationComponent implements OnInit {
     else if (evt.keyCode === 40/*arrow down*/) {
       this.state.isArrowDownDown = true
     }
-
-    this.state.timeFactor = Math.max(1, this.state.timeFactor)
   }
 
   onKeyUp(evt) {

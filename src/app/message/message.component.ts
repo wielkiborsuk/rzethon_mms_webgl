@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Http, Response, RequestOptionsArgs, Headers } from "@angular/http";
+import * as _ from 'lodash';
 
 import { AuthService } from '../auth.service';
 import { StateService } from '../state.service';
@@ -11,7 +12,7 @@ import { StateService } from '../state.service';
 })
 export class MessageComponent implements OnInit {
 
-  lastMessage = {};
+  lastMessage;
   nodes = [];
 
   message = {
@@ -36,10 +37,9 @@ export class MessageComponent implements OnInit {
 
   sendMessage() {
     this.http.post(this.state.BACKEND_URL + '/messages', {'message': this.message}).subscribe(res => {
-      console.log(res);
       this.lastMessage = res.json().message;
       this.http.get(this.state.BACKEND_URL + '/simulations').subscribe(res => {
-        console.log(res);
+        this.lastMessage.deliveryTime = _.find(res.json().messages, {'id': this.lastMessage.id});
       });
     });
   }
