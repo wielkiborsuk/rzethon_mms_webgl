@@ -14,17 +14,20 @@ import { RenderService } from '../render.service';
 })
 export class VisualisationComponent implements OnInit {
   private SIM_FETCH_INTERVAL = 5000;
+  private intervalHandle;
 
   constructor(private render: RenderService, private state: StateService, private assets: AssetService, private http: Http) { }
 
   ngOnInit() {
+    this.render.container = document.getElementById('container')
+
     document.addEventListener('keydown', this.onKeyDown.bind(this), false)
     document.addEventListener('keyup', this.onKeyUp.bind(this), false)
-    document.addEventListener('mousemove', this.onDocumentMouseMove.bind(this), false)
-    document.addEventListener('mousedown', this.onDocumentMouseDown.bind(this), false)
-    document.addEventListener('mouseup', this.onDocumentMouseUp.bind(this), false)
-    document.addEventListener('mouseleave', this.onDocumentMouseLeave.bind(this), false)
-    document.addEventListener('mousewheel', this.onDocumentMouseWheel.bind(this), false)
+    this.render.container.addEventListener('mousemove', this.onDocumentMouseMove.bind(this), false)
+    this.render.container.addEventListener('mousedown', this.onDocumentMouseDown.bind(this), false)
+    this.render.container.addEventListener('mouseup', this.onDocumentMouseUp.bind(this), false)
+    this.render.container.addEventListener('mouseleave', this.onDocumentMouseLeave.bind(this), false)
+    this.render.container.addEventListener('mousewheel', this.onDocumentMouseWheel.bind(this), false)
     window.addEventListener('resize', this.onWindowResize.bind(this), false)
 
     this.assets.preloadAssets().then(() => {
@@ -34,45 +37,15 @@ export class VisualisationComponent implements OnInit {
 
       this.fetchNodes();
       this.fetchSimulation();
-      setInterval(() => {
+      this.intervalHandle = setInterval(() => {
         this.fetchSimulation()
       }, this.SIM_FETCH_INTERVAL);
-
-      setTimeout(() => {
-        let earthPos = _.find(this.state.planetNodes, {id: 'earth'}).mesh.position
-        let marsPos = _.find(this.state.planetNodes, {id: 'mars'}).mesh.position
-        let venusPos = _.find(this.state.planetNodes, {id: 'venus'}).mesh.position
-
-        let data = {
-          id: "fjiof-fjioef-fejioef-fejio-fejio",
-          path: [
-            {name: "earth1", location: {x: earthPos.x, y: earthPos.y, z: earthPos.z}},
-            {name: "mars1", location: {x: marsPos.x, y: marsPos.y, z: marsPos.z}},
-            {name: "venus1", location: {x: venusPos.x, y: venusPos.y, z: venusPos.z}}
-          ],
-          lastReport: {
-            name: 'earth1',
-            time: null//to be calculated
-          },
-          speedFactor: 100,
-          estimatedArrivalTime: 0 // to be calculated
-        }
-
-        let earthToMarsDist = this.render.distance(data.path[0].location, data.path[1].location)
-        let marsToVenusDist = this.render.distance(data.path[1].location, data.path[2].location)
-        let totalDist = earthToMarsDist + marsToVenusDist
-
-        let earthToMarsTime = earthToMarsDist / (this.render.LIGHT_SPEED_AU*data.speedFactor) * 1000
-        let flyTime = totalDist / this.render.LIGHT_SPEED_AU * 1000
-
-        data.lastReport.time = (new Date().getTime())// - earthToMarsTime/2
-        // lastBackendData.estimatedArrivalTime = new Date().getTime() + flyTime/2
-
-        // onWebSocketData({
-        //   message: data
-        // })
-      }, 1000)
     });
+  }
+
+  ngOnDestroy() {
+    clearInterval(this.intervalHandle);
+    delete this.intervalHandle;
   }
 
   fetchNodes() {

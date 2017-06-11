@@ -8,7 +8,7 @@ export class StateService {
 
   public BACKEND_URL = 'http://localhost:3000'
   public timeFactor = 1;
-  public d = this.unixTimeToDayFraction(new Date().getTime());
+  //public d = this.unixTimeToDayFraction(new Date().getTime());
   public prevRenderTime = new Date().getTime();
   public planetNodes = [];
   public msgNodes = [];
@@ -20,6 +20,10 @@ export class StateService {
 
   intDiv(a, b) {
     return Math.floor(a / b)
+  }
+
+  currentDayFraction() {
+    return this.unixTimeToDayFraction(new Date().getTime());
   }
 
   /**
