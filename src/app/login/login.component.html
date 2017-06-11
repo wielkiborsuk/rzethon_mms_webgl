@@ -1,0 +1,19 @@
+<div class="panel panel-default col-md-6 col-md-offset-3">
+  <div class="panel-body">
+    <div class="row">
+      <div class="col-sm-8">
+        <h1>Logowanie</h1>
+        <h4>Wprowadź poniżej swój login</h4>
+      </div>
+    </div>
+    <!--<div class="alert alert-danger" role="alert" *ngIf="errorMsg">{{errorMsg}}</div>-->
+    <form>
+      <div class="form-group">
+        <label for="login">Login</label>
+        <input type="text" class="form-control" id="login" placeholder="Login" [(ngModel)]="loginForm.login" name="login">
+      </div>
+      <button type="button" class="btn btn-default center-block" (click)="login()">Zaloguj się</button>
+    </form>
+  </div>
+</div>
+
