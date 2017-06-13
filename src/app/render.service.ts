@@ -43,7 +43,7 @@ export class RenderService {
     this.initBackground()
 
     for (let body of this.planets.planets) {
-      let node = this.initCelestialBody(body, true)
+      this.initCelestialBody(body, true)
     }
 
     this.updatePositions()
@@ -114,42 +114,42 @@ export class RenderService {
     }
   }
 
-  initCelestialBody(params, isMsgNode = false) {
+  initCelestialBody(params, isPlanet = false) {
     const [id, name, textureFilename, diameter, scale, orbDays] = params
     let texture = this.assets.textures[textureFilename]
     let geometry = new THREE.SphereGeometry(this.PLANET_RADIUS_SCALE * diameter * scale, 20, 20)
-    let material = new THREE.MeshBasicMaterial({ map: texture, overdraw: 1 })
+    let material = new THREE.MeshBasicMaterial({ map: texture, transparent: true })
     let mesh = new THREE.Mesh(geometry, material)
 
-    let node = null
+    this.scene.add(mesh)
 
-    if (isMsgNode) {
-      // orb
+    if (isPlanet) {
+      this.state.planetNodes.push({id, mesh})
+
+      this.scene.add(this.renderOrbit(id, orbDays))
+    }
+  }
+
+  renderOrbit(id, orbDays) {
       const D = 1
-      geometry = new THREE.Geometry()
-      material = new THREE.LineBasicMaterial({ color: 0xFFFFFF })
+      let geometry = new THREE.Geometry()
+      let material = new THREE.LineBasicMaterial({ color: 0xFFFFFF })
       for (let d = 0, i = 0; d < orbDays; d += D, i += 3) {
         let pos = {x: 0, y: 0, z: 0}
         this.calcNodePosition(pos, id, d)
         geometry.vertices.push(new THREE.Vector3(pos.x, pos.y, pos.z))
       }
-      this.scene.add(new THREE.Line(geometry, material))
 
-      // save node
-      node = {id, mesh}
-      this.state.planetNodes.push(node)
-    }
-
-    this.scene.add(mesh)
-
-    return node
+      return new THREE.Line(geometry, material);
   }
 
   initNode(id, loc) {
     let texture = this.assets.textures["Node.png"]
     let geometry = new THREE.SphereGeometry(this.NODE_RADIUS, 40, 40)
-    let material = new THREE.MeshBasicMaterial({ map: texture, overdraw: 1 })
+    let material = new THREE.MeshBasicMaterial({ map: texture, transparent: true, opacity: 0.6 })
     let mesh = new THREE.Mesh(geometry, material)
+    mesh.material.depthTest = false;
+    mesh.renderOrder = 2;
 
     mesh.position.x = loc.x
     mesh.position.y = loc.y
@@ -328,8 +328,11 @@ export class RenderService {
       this.pointToVector3(end)
     )
     geometry.colors = [new THREE.Color( 0x999999 ), new THREE.Color( 0x00ff11 )]
-    let material = new THREE.LineBasicMaterial( { color: 0xffffff, opacity: 1, linewidth: 2, vertexColors: THREE.VertexColors } );
+    let material = new THREE.LineBasicMaterial( { color: 0xffffff, opacity: 1, linewidth: 2, vertexColors: THREE.VertexColors, transparent: true } );
     let line = new THREE.Line(geometry, material)
+    line.material.depthTest = false;
+    line.renderOrder = 1.9;
+
     return line
   }
 

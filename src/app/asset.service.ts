@@ -59,8 +59,11 @@ export class AssetService {
   getMessageMesh() {
     let texture = this.textures["Message.jpg"]
     let geometry = new THREE.SphereGeometry(this.MESSAGE_RADIUS, 40, 40)
-    let material = new THREE.MeshBasicMaterial({ map: texture, overdraw: 1 })
+    let material = new THREE.MeshBasicMaterial({ map: texture, transparent: true })
     let mesh = new THREE.Mesh(geometry, material)
+    mesh.material.depthTest = false;
+    mesh.renderOrder = 3;
+
     return mesh;
   }
 }
