@@ -39,7 +39,10 @@ export class MessageComponent implements OnInit {
     this.http.post(this.state.BACKEND_URL + '/messages', {'message': this.message}).subscribe(res => {
       this.lastMessage = res.json().message;
       this.http.get(this.state.BACKEND_URL + '/simulations').subscribe(res => {
-        this.lastMessage.deliveryTime = _.find(res.json().messages, {'id': this.lastMessage.id});
+        this.lastMessage.deliveryTime = _.find(
+          res.json().messages, m => { return m['id'] === this.lastMessage.id }
+        )['deliveryTime'];
+        this.lastMessage.timeRemaining = this.lastMessage.deliveryTime - new Date().getTime();
       });
     });
   }
