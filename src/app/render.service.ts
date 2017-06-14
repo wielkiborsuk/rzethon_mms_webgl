@@ -37,9 +37,6 @@ export class RenderService {
       this.camera.near = 0.000001
       this.camera.updateProjectionMatrix()
 
-      this.controls = new TrackballControls( this.camera, this.container );
-      //this.controls.addEventListener( 'change', this.render.bind(this) );
-
       this.scene = new THREE.Scene()
 
       this.initBackground()
@@ -63,6 +60,9 @@ export class RenderService {
       this.renderer.setSize(window.innerWidth, window.innerHeight);
       this.initOnce = true;
     }
+
+    this.controls = new TrackballControls( this.camera, this.container );
+    //this.controls.addEventListener( 'change', this.render.bind(this) );
 
     this.container.appendChild(this.renderer.domElement)
   }
@@ -163,8 +163,8 @@ export class RenderService {
     }
 
     for (let msg of this.state.msgs) {
-      this.updateMessagePosition(msg);
       if (this.shouldDisplayMessage(msg)) {
+        this.updateMessagePosition(msg);
         this.addMessageToScene(msg);
       }
       else {
@@ -257,7 +257,9 @@ export class RenderService {
 
     let factorBetweenNodes = distSinceProbableLastNode / distBetweenNodes
 
-    this.lerpPos(mesh.position, curNode.location, nextNode.location, factorBetweenNodes)
+    if (curNode && nextNode && factorBetweenNodes) {
+      this.lerpPos(mesh.position, curNode.location, nextNode.location, factorBetweenNodes)
+    }
   }
 
   onMessageUpdated(evt) {

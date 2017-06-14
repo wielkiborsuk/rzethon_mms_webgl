@@ -28,8 +28,8 @@ export class VisualisationComponent implements OnInit {
     this.assets.preloadAssets().then(() => {
       this.render.init()
       this.render.animate()
-
       this.onWindowResize();
+
       this.fetchNodes();
       this.fetchSimulation();
       this.intervalHandle = setInterval(() => {
