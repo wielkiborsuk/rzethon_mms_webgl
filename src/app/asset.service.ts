@@ -90,14 +90,21 @@ export class AssetService {
     return mesh;
   }
 
-  prepareLineRender(start, end) {
+  prepareLineRender(start, end, confirmed = false) {
     let geometry = new THREE.Geometry()
     geometry.vertices.push(
       new THREE.Vector3(start.x, start.y, start.z),
       new THREE.Vector3(end.x, end.y, end.z)
     )
-    geometry.colors = [new THREE.Color( 0x999999 ), new THREE.Color( 0x00ff11 )]
-    let material = new THREE.LineBasicMaterial( { color: 0xffffff, opacity: 1, linewidth: 2, vertexColors: THREE.VertexColors, transparent: true } );
+
+    if (confirmed) {
+      geometry.colors = [new THREE.Color( 0x999999 ), new THREE.Color( 0x00ff11 )]
+    }
+    else {
+      geometry.colors = [new THREE.Color( 0x999900 ), new THREE.Color( 0xffff11 )]
+    }
+
+    let material = new THREE.LineBasicMaterial( { opacity: 1, linewidth: 2, vertexColors: THREE.VertexColors, transparent: true } );
     let line = new THREE.Line(geometry, material)
     line.material.depthTest = false;
     line.renderOrder = 1.9;

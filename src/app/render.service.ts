@@ -226,7 +226,7 @@ export class RenderService {
     let lastReportNodeIndex = _.findIndex(data.path, {name: data.lastReport.name})
     let wasDelivered = lastReportNodeIndex >= data.path.length - 1
 
-    return !wasDelivered && curTime < data.deliveryTime;
+    return !wasDelivered
   }
 
   updateMessagePosition(msg) {
@@ -264,15 +264,17 @@ export class RenderService {
 
   onMessageUpdated(evt) {
     let msg = _.find(this.state.msgs, {id: evt.message.id})
-    let isNewMsg = !msg
+    let messageUpdate = evt.message;
 
-    if (isNewMsg) {
-      msg = evt.message
-
-      this.state.msgs.push(this.createNewMessageObject(msg));
+    if (msg) {
+      if (msg.lastBackendData.lastReport.name != messageUpdate.lastReport.name) {
+        this.removeMessageFromScene(msg);
+        this.state.msgs.splice(this.state.msgs.indexOf(msg), 1);
+        this.state.msgs.push(this.createNewMessageObject(messageUpdate));
+      }
     }
     else {
-      // TODO update msg!
+      this.state.msgs.push(this.createNewMessageObject(messageUpdate));
     }
   }
 
@@ -310,12 +312,16 @@ export class RenderService {
     let mesh = this.assets.getMessageMesh()
     mesh.name = msg.id
 
+    let delivered = true;
     let lines = []
     for (let nodeIndex = 0; nodeIndex < msg.path.length-1; ++nodeIndex) {
       let curNode = msg.path[nodeIndex]
       let nextNode = msg.path[nodeIndex+1]
+      if (curNode.name === msg.lastReport.name) {
+        delivered = false;
+      }
 
-      let line = this.assets.prepareLineRender(msg.path[nodeIndex].location, msg.path[nodeIndex+1].location);
+      let line = this.assets.prepareLineRender(msg.path[nodeIndex].location, msg.path[nodeIndex+1].location, delivered);
       lines.push(line)
     }
 

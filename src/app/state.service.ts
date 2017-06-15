@@ -16,7 +16,7 @@ export class StateService {
   public highlighted = [];
   public isLeftMouseButtonDown = false;
   public isArrowDownDown = false;
-  public mouse;
+  public mouse = <any>{};
 
   constructor() { }
 
