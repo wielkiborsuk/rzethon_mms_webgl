@@ -255,7 +255,7 @@ export class RenderService {
       }
     }
 
-    let factorBetweenNodes = distSinceProbableLastNode / distBetweenNodes
+    let factorBetweenNodes = Math.min(distSinceProbableLastNode / distBetweenNodes, 1);
 
     if (curNode && nextNode && factorBetweenNodes) {
       this.lerpPos(mesh.position, curNode.location, nextNode.location, factorBetweenNodes)
