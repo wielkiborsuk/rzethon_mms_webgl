@@ -19,7 +19,8 @@ export class MessageComponent implements OnInit {
     sender: this.auth.getCurrentUser(),
     receiver: 'ThePilot',
     destination: 'EARTH#1.3',
-    content: 'Draw me a lamb!'
+    content: 'Draw me a lamb!',
+    speedFactor: this.state.speedFactor
   }
 
   constructor(private http: Http, private auth: AuthService, private state: StateService) { }

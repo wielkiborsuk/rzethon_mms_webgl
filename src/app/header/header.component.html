@@ -1,6 +1,7 @@
 <nav class="navbar navbar-default navbar-fixed-top">
   <div class="container">
     <a class="navbar-brand" routerLink="/"><span class="glyphicon glyphicon-home"></span></a>
+    <a class="navbar-brand" (click)="state.advanced = !state.advanced"><span class="glyphicon glyphicon-cog"></span></a>
     <ul class="nav navbar-nav navbar-right" *ngIf="auth.isLoggedIn()">
       <li class="nav-item">
         <a class="nav-link" routerLink="/message" routerLinkActive="active">Wiadomości</a>
@@ -17,5 +18,12 @@
           </ul>
       </li>
     </ul>
+
+    <form class="navbar-form navbar-right" *ngIf="state.advanced" action="">
+      <div class="form-group">
+        <label for="speed_factor">Szybkość wiadomości</label>
+        <input class="form-control" style="width: 90px" type="number" step="0.1" name="speed_factor" [(ngModel)]="state.speedFactor" id="speed_factor">
+      </div>
+    </form>
   </div>
 </nav>

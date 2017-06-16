@@ -17,6 +17,8 @@ export class StateService {
   public isLeftMouseButtonDown = false;
   public isArrowDownDown = false;
   public mouse = <any>{};
+  public speedFactor = 1.0;
+  public advanced = false;
 
   constructor() { }
 
