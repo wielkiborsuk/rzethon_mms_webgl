@@ -13,8 +13,10 @@ export class StateService {
   public planetNodes = [];
   public msgNodes = [];
   public msgs = [];
+  public highlighted = [];
   public isLeftMouseButtonDown = false;
   public isArrowDownDown = false;
+  public mouse = <any>{};
 
   constructor() { }
 

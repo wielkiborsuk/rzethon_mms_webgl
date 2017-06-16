@@ -24,8 +24,8 @@
         </div>
       </div>
     </form>
-    <div class="alert" *ngIf="lastMessage">
-      <p>Wysłałeś wiadomość o id {{lastMessage.id}} do {{lastMessage.receiver}}. Powinna ona dotrzeć do odbiorcy o {{lastMessage.deliveryTime}}</p>
+    <div class="alert alert-success" *ngIf="lastMessage">
+      <p>Wysłałeś wiadomość o id {{lastMessage.id}} do {{lastMessage.receiver}}. Powinna ona dotrzeć do odbiorcy o {{lastMessage.deliveryTime | date: 'mediumTime'}}.</p>
     </div>
   </div>
 </div>

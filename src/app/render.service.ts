@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as THREE from 'three';
+import * as TrackballControls from 'three-trackballcontrols';
 import * as moment from 'moment/moment';
 import * as _ from 'lodash';
 
@@ -10,21 +11,19 @@ import { StateService } from './state.service';
 @Injectable()
 export class RenderService {
   private initOnce = false;
-  private PLANET_RADIUS_SCALE = 0.0000004;
   private DAY_MILLISECONDS = 24 * 60 * 60 * 1000;
   private DIFF_2000_1970 = moment('2000-01-01').diff('1970-01-01', 'ms') - 3600000 - 86400000
   private ASTRONOMICAL_UNIT = 149597870.7; //km
-  private NODE_RADIUS = 0.05;
   public LIGHT_SPEED_AU = 299792.458 / this.ASTRONOMICAL_UNIT; /*km per sec*/
   public CAMERA_ZOOM_SPEED = 0.08*4;
 
   public container;
   public camera;
+  public controls;
   public scene;
   public renderer;
+  public raycaster;
   public viewState = { scale: 1, parallaxes: [], enablePlanetScaling: false }
-  public mouseX = 0;
-  public mouseY = 0;
   public windowHalfX = window.innerWidth / 2;
   public windowHalfY = window.innerHeight / 2;
 
@@ -32,39 +31,46 @@ export class RenderService {
 
   init() {
     if (!this.initOnce) {
-    this.camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 2000)
-    this.camera.position.z = 1.5
-    this.camera.far = 100000
-    this.camera.near = 0.000001
-    this.camera.updateProjectionMatrix()
+      this.camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 2000)
+      this.camera.position.z = 1.5
+      this.camera.far = 100000
+      this.camera.near = 0.000001
+      this.camera.updateProjectionMatrix()
 
-    this.scene = new THREE.Scene()
+      this.scene = new THREE.Scene()
 
-    this.initBackground()
+      this.initBackground()
 
-    for (let body of this.planets.planets) {
-      let node = this.initCelestialBody(body, true)
-    }
+      for (let body of this.planets.planets) {
+        this.initCelestialBody(body, true)
+      }
 
-    this.updatePositions()
+      this.updatePositions()
 
-    for (let body of this.planets.otherBodies) {
-      this.initCelestialBody(body, false)
-    }
+      for (let body of this.planets.otherBodies) {
+        this.initCelestialBody(body, false)
+      }
 
-    this.renderer = new THREE.WebGLRenderer({antialias: true, logarithmicDepthBuffer: true})
-    this.renderer.setClearColor(0)
-    this.renderer.setPixelRatio(window.devicePixelRatio)
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
+      this.state.mouse = new THREE.Vector2();
+      this.raycaster = new THREE.Raycaster();
+
+      this.renderer = new THREE.WebGLRenderer({antialias: true, logarithmicDepthBuffer: true})
+      this.renderer.setClearColor(0)
+      this.renderer.setPixelRatio(window.devicePixelRatio)
+      this.renderer.setSize(window.innerWidth, window.innerHeight);
       this.initOnce = true;
     }
+
+    this.controls = new TrackballControls( this.camera, this.container );
+    //this.controls.addEventListener( 'change', this.render.bind(this) );
 
     this.container.appendChild(this.renderer.domElement)
   }
 
   animate() {
     requestAnimationFrame(this.animate.bind(this))
-    this.render()
+    this.controls.update();
+    this.render();
   }
 
   initBackground() {
@@ -114,42 +120,34 @@ export class RenderService {
     }
   }
 
-  initCelestialBody(params, isMsgNode = false) {
+  initCelestialBody(params, isPlanet = false) {
     const [id, name, textureFilename, diameter, scale, orbDays] = params
-    let texture = this.assets.textures[textureFilename]
-    let geometry = new THREE.SphereGeometry(this.PLANET_RADIUS_SCALE * diameter * scale, 20, 20)
-    let material = new THREE.MeshBasicMaterial({ map: texture, overdraw: 1 })
-    let mesh = new THREE.Mesh(geometry, material)
 
-    let node = null
+    let mesh = this.assets.getBodyMesh(textureFilename, diameter, scale);
+    this.scene.add(mesh)
 
-    if (isMsgNode) {
-      // orb
+    if (isPlanet) {
+      this.state.planetNodes.push({id, mesh})
+
+      this.scene.add(this.renderOrbit(id, orbDays))
+    }
+  }
+
+  renderOrbit(id, orbDays) {
       const D = 1
-      geometry = new THREE.Geometry()
-      material = new THREE.LineBasicMaterial({ color: 0xFFFFFF })
+      let geometry = new THREE.Geometry()
+      let material = new THREE.LineBasicMaterial({ color: 0xFFFFFF })
       for (let d = 0, i = 0; d < orbDays; d += D, i += 3) {
         let pos = {x: 0, y: 0, z: 0}
         this.calcNodePosition(pos, id, d)
         geometry.vertices.push(new THREE.Vector3(pos.x, pos.y, pos.z))
       }
-      this.scene.add(new THREE.Line(geometry, material))
 
-      // save node
-      node = {id, mesh}
-      this.state.planetNodes.push(node)
-    }
-
-    this.scene.add(mesh)
-
-    return node
+      return new THREE.Line(geometry, material);
   }
 
   initNode(id, loc) {
-    let texture = this.assets.textures["Node.png"]
-    let geometry = new THREE.SphereGeometry(this.NODE_RADIUS, 40, 40)
-    let material = new THREE.MeshBasicMaterial({ map: texture, overdraw: 1 })
-    let mesh = new THREE.Mesh(geometry, material)
+    let mesh = this.assets.getNodeMesh();
 
     mesh.position.x = loc.x
     mesh.position.y = loc.y
@@ -165,8 +163,8 @@ export class RenderService {
     }
 
     for (let msg of this.state.msgs) {
-      this.updateMessagePosition(msg);
       if (this.shouldDisplayMessage(msg)) {
+        this.updateMessagePosition(msg);
         this.addMessageToScene(msg);
       }
       else {
@@ -222,21 +220,13 @@ export class RenderService {
   }
 
   shouldDisplayMessage(msg) {
-    //FIXME - this will be able to depend on backends information on estimated delivery time
     let {mesh, 'lastBackendData':data} = msg
     let curTime = new Date().getTime();
 
     let lastReportNodeIndex = _.findIndex(data.path, {name: data.lastReport.name})
     let wasDelivered = lastReportNodeIndex >= data.path.length - 1
 
-    let remainingPath = data.path.slice(lastReportNodeIndex);
-    let distSinceLastReport = (curTime - data.lastReport.time)/1000 * data.speedFactor * this.LIGHT_SPEED_AU
-    let remainingDistance = _.sum(
-      _.map(_.zip(remainingPath.slice(0,-1), remainingPath.slice(1)),
-        this.nodeDistance.bind(this))
-    );
-
-    return !wasDelivered && distSinceLastReport < remainingDistance;
+    return !wasDelivered
   }
 
   updateMessagePosition(msg) {
@@ -265,51 +255,73 @@ export class RenderService {
       }
     }
 
-    let factorBetweenNodes = distSinceProbableLastNode / distBetweenNodes
+    let factorBetweenNodes = Math.min(distSinceProbableLastNode / distBetweenNodes, 1);
 
-    this.lerpPos(mesh.position, curNode.location, nextNode.location, factorBetweenNodes)
+    if (curNode && nextNode && factorBetweenNodes) {
+      this.lerpPos(mesh.position, curNode.location, nextNode.location, factorBetweenNodes)
+    }
   }
 
   onMessageUpdated(evt) {
     let msg = _.find(this.state.msgs, {id: evt.message.id})
-    let isNewMsg = !msg
+    let messageUpdate = evt.message;
 
-    if (isNewMsg) {
-      msg = evt.message
-
-      this.state.msgs.push(this.createNewMessageObject(msg));
+    if (msg) {
+      if (msg.lastBackendData.lastReport.name != messageUpdate.lastReport.name) {
+        this.removeMessageFromScene(msg);
+        this.state.msgs.splice(this.state.msgs.indexOf(msg), 1);
+        this.state.msgs.push(this.createNewMessageObject(messageUpdate));
+      }
     }
     else {
-      // TODO update msg!
+      this.state.msgs.push(this.createNewMessageObject(messageUpdate));
     }
   }
 
   render() {
-    this.updatePositions()
+    this.updatePositions();
 
-    if (this.state.isLeftMouseButtonDown) {
-      this.camera.position.x -= (this.mouseX - this.camera.position.x) * 0.0001
-      this.camera.position.y += (this.mouseY - this.camera.position.y) * 0.0001
-
-      if (this.state.isArrowDownDown)
-        this.camera.lookAt(this.scene.position)
-
-      this.camera.updateProjectionMatrix()
-    }
+    //this.highlightOnMouseOver();
 
     this.renderer.render(this.scene, this.camera)
+  }
+
+  highlightOnMouseOver() {
+    this.raycaster.setFromCamera(this.state.mouse, this.camera);
+    //only take into account named objects - planets and messages
+    let intersects = this.raycaster.intersectObjects(this.scene.children).filter(i => {return !!i.object.name;});
+
+    if (intersects.length) {
+      intersects.forEach(i => {
+        if (!this.state.highlighted.slice(0).find(o => { return o.index == i.object.index })) {
+          i.object.originalColor = i.object.material.color;
+        }
+
+        i.object.material.color = new THREE.Color(0xff0000);
+
+        this.state.highlighted.push(i.object);
+      });
+    }
+    else {
+      this.state.highlighted.forEach(o => {o.material.color = o.originalColor});
+      this.state.highlighted.splice(0);
+    }
   }
 
   createNewMessageObject(msg) {
     let mesh = this.assets.getMessageMesh()
     mesh.name = msg.id
 
+    let delivered = true;
     let lines = []
     for (let nodeIndex = 0; nodeIndex < msg.path.length-1; ++nodeIndex) {
       let curNode = msg.path[nodeIndex]
       let nextNode = msg.path[nodeIndex+1]
+      if (curNode.name === msg.lastReport.name) {
+        delivered = false;
+      }
 
-      let line = this.prepareLineRender(msg.path[nodeIndex].location, msg.path[nodeIndex+1].location);
+      let line = this.assets.prepareLineRender(msg.path[nodeIndex].location, msg.path[nodeIndex+1].location, delivered);
       lines.push(line)
     }
 
@@ -321,17 +333,6 @@ export class RenderService {
     }
   }
 
-  prepareLineRender(start, end) {
-    let geometry = new THREE.Geometry()
-    geometry.vertices.push(
-      this.pointToVector3(start),
-      this.pointToVector3(end)
-    )
-    geometry.colors = [new THREE.Color( 0x999999 ), new THREE.Color( 0x00ff11 )]
-    let material = new THREE.LineBasicMaterial( { color: 0xffffff, opacity: 1, linewidth: 2, vertexColors: THREE.VertexColors } );
-    let line = new THREE.Line(geometry, material)
-    return line
-  }
 
   dayFractionToUnixTime(d) {
     return Math.floor(d * this.DAY_MILLISECONDS + this.DIFF_2000_1970)

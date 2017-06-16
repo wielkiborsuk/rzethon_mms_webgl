@@ -22,18 +22,13 @@ export class VisualisationComponent implements OnInit {
     this.render.container = document.getElementById('container')
 
     document.addEventListener('keydown', this.onKeyDown.bind(this), false)
-    document.addEventListener('keyup', this.onKeyUp.bind(this), false)
     this.render.container.addEventListener('mousemove', this.onDocumentMouseMove.bind(this), false)
-    this.render.container.addEventListener('mousedown', this.onDocumentMouseDown.bind(this), false)
-    this.render.container.addEventListener('mouseup', this.onDocumentMouseUp.bind(this), false)
-    this.render.container.addEventListener('mouseleave', this.onDocumentMouseLeave.bind(this), false)
-    this.render.container.addEventListener('mousewheel', this.onDocumentMouseWheel.bind(this), false)
     window.addEventListener('resize', this.onWindowResize.bind(this), false)
 
     this.assets.preloadAssets().then(() => {
       this.render.init()
       this.render.animate()
-
+      this.onWindowResize();
 
       this.fetchNodes();
       this.fetchSimulation();
@@ -78,6 +73,7 @@ export class VisualisationComponent implements OnInit {
     this.render.camera.updateProjectionMatrix()
 
     this.render.renderer.setSize(window.innerWidth, window.innerHeight)
+    this.render.controls.handleResize();
   }
 
   onKeyDown(evt) {
@@ -87,45 +83,12 @@ export class VisualisationComponent implements OnInit {
     else if (evt.key == 'p') {
       this.state.timeFactor *= 10
     }
-    else if (evt.key == 's') {
-      this.render.viewState.enablePlanetScaling = !this.render.viewState.enablePlanetScaling
-    }
-    else if (evt.keyCode === 40/*arrow down*/) {
-      this.state.isArrowDownDown = true
-    }
-  }
-
-  onKeyUp(evt) {
-    if (evt.keyCode === 40/*arrow down*/) {
-      this.state.isArrowDownDown = false
-    }
   }
 
   onDocumentMouseMove(evt) {
-    this.render.mouseX = (evt.clientX - this.render.windowHalfX)
-    this.render.mouseY = (evt.clientY - this.render.windowHalfY)
-  }
-
-  onDocumentMouseDown(evt) {
-    this.state.isLeftMouseButtonDown = true
-  }
-
-  onDocumentMouseUp(evt) {
-    this.state.isLeftMouseButtonDown = false
-  }
-
-  onDocumentMouseLeave(evt) {
-    this.state.isLeftMouseButtonDown = false
-  }
-
-  onDocumentMouseWheel(evt) {
-    let z = this.render.camera.position.z + this.render.CAMERA_ZOOM_SPEED * Math.sign(evt.deltaY)
-
-    // if (z < CAMERA_MAX_ZOOM) {
-    //   z = CAMERA_MAX_ZOOM
-    // }
-
-    this.render.camera.position.z = z
-    this.render.camera.updateProjectionMatrix()
+    let canvas = this.render.container.children[0];
+    this.state.mouse.x = ( evt.clientX / window.innerWidth ) * 2 - 1;
+    this.state.mouse.y = - ( (evt.clientY - 50) / window.innerHeight ) * 2 + 1;
+    //magic number 50 taken from the top margin - maybe there's an option to take event coords relative to canvas?
   }
 }
