@@ -234,31 +234,22 @@ export class RenderService {
     let curTime = new Date().getTime();
 
     let curNodeIndex = _.findIndex(data.path, {name: data.lastReport.name})
-
     let distSinceProbableLastNode = (curTime - data.lastReport.time)/1000 * data.speedFactor * this.LIGHT_SPEED_AU
 
-    let distBetweenNodes = null
-    let curNode, nextNode
+    let starts = data.path.slice(curNodeIndex, data.path.length-1);
+    let ends = data.path.slice(curNodeIndex+1);
+    let distances = _.map(_.zip(starts, ends), (n:any) => { return this.distance(n[0].location, n[1].location); });
 
-    while (curNodeIndex < data.path.length-1) {
-      curNode = data.path[curNodeIndex]
-      nextNode = data.path[curNodeIndex+1]
-      distBetweenNodes = this.distance(curNode.location, nextNode.location)
-
-      if (distSinceProbableLastNode < distBetweenNodes) {
-        // `curNode` is the last node which should have been visited already now
-        break
-      }
-      else {
-        distSinceProbableLastNode -= distBetweenNodes
-        ++curNodeIndex
-      }
+    let guessIndex = 0;
+    while (guessIndex < starts.length-1 && distSinceProbableLastNode >= distances[guessIndex]) {
+      distSinceProbableLastNode -= distances[guessIndex];
+      guessIndex++;
     }
 
-    let factorBetweenNodes = Math.min(distSinceProbableLastNode / distBetweenNodes, 1);
+    let factorBetweenNodes = Math.min(distSinceProbableLastNode / distances[guessIndex], 1);
 
-    if (curNode && nextNode && factorBetweenNodes) {
-      this.lerpPos(mesh.position, curNode.location, nextNode.location, factorBetweenNodes)
+    if (factorBetweenNodes) {
+      this.lerpPos(mesh.position, starts[guessIndex].location, ends[guessIndex].location, factorBetweenNodes)
     }
   }
 
