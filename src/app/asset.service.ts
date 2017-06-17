@@ -98,10 +98,10 @@ export class AssetService {
     )
 
     if (confirmed) {
-      geometry.colors = [new THREE.Color( 0x999999 ), new THREE.Color( 0x00ff11 )]
+      geometry.colors = [new THREE.Color( 0x00ff00 ), new THREE.Color( 0x00ff00 )]
     }
     else {
-      geometry.colors = [new THREE.Color( 0x999900 ), new THREE.Color( 0xffff11 )]
+      geometry.colors = [new THREE.Color( 0xff9900 ), new THREE.Color( 0xff9900 )]
     }
 
     let material = new THREE.LineBasicMaterial( { opacity: 1, linewidth: 2, vertexColors: THREE.VertexColors, transparent: true } );

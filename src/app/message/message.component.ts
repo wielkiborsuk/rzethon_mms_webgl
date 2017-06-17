@@ -19,7 +19,8 @@ export class MessageComponent implements OnInit {
     sender: this.auth.getCurrentUser(),
     receiver: 'ThePilot',
     destination: 'EARTH#1.3',
-    content: 'Draw me a lamb!'
+    content: 'Draw me a lamb!',
+    speedFactor: this.state.speedFactor
   }
 
   constructor(private http: Http, private auth: AuthService, private state: StateService) { }
@@ -36,6 +37,7 @@ export class MessageComponent implements OnInit {
   }
 
   sendMessage() {
+    this.message.speedFactor = this.state.speedFactor;
     this.http.post(this.state.BACKEND_URL + '/messages', {'message': this.message}).subscribe(res => {
       this.lastMessage = res.json().message;
       this.http.get(this.state.BACKEND_URL + '/simulations').subscribe(res => {

@@ -15,7 +15,6 @@ export class RenderService {
   private DIFF_2000_1970 = moment('2000-01-01').diff('1970-01-01', 'ms') - 3600000 - 86400000
   private ASTRONOMICAL_UNIT = 149597870.7; //km
   public LIGHT_SPEED_AU = 299792.458 / this.ASTRONOMICAL_UNIT; /*km per sec*/
-  public CAMERA_ZOOM_SPEED = 0.08*4;
 
   public container;
   public camera;
@@ -24,8 +23,8 @@ export class RenderService {
   public renderer;
   public raycaster;
   public viewState = { scale: 1, parallaxes: [], enablePlanetScaling: false }
-  public windowHalfX = window.innerWidth / 2;
-  public windowHalfY = window.innerHeight / 2;
+  public lastAnimation = new Date().getTime();
+  public framerate = 20;
 
   constructor(private planets: PlanetService, private assets: AssetService, private state: StateService) { }
 
@@ -68,9 +67,16 @@ export class RenderService {
   }
 
   animate() {
-    requestAnimationFrame(this.animate.bind(this))
-    this.controls.update();
-    this.render();
+    let now = new Date().getTime();
+    if (now - this.lastAnimation > 1000/this.framerate) {
+      requestAnimationFrame(this.animate.bind(this))
+      this.controls.update();
+      this.render();
+      this.lastAnimation = now;
+    }
+    else {
+      setTimeout(this.animate.bind(this), 500/this.framerate);
+    }
   }
 
   initBackground() {
@@ -234,31 +240,22 @@ export class RenderService {
     let curTime = new Date().getTime();
 
     let curNodeIndex = _.findIndex(data.path, {name: data.lastReport.name})
-
     let distSinceProbableLastNode = (curTime - data.lastReport.time)/1000 * data.speedFactor * this.LIGHT_SPEED_AU
 
-    let distBetweenNodes = null
-    let curNode, nextNode
+    let starts = data.path.slice(curNodeIndex, data.path.length-1);
+    let ends = data.path.slice(curNodeIndex+1);
+    let distances = _.map(_.zip(starts, ends), (n:any) => { return this.distance(n[0].location, n[1].location); });
 
-    while (curNodeIndex < data.path.length-1) {
-      curNode = data.path[curNodeIndex]
-      nextNode = data.path[curNodeIndex+1]
-      distBetweenNodes = this.distance(curNode.location, nextNode.location)
-
-      if (distSinceProbableLastNode < distBetweenNodes) {
-        // `curNode` is the last node which should have been visited already now
-        break
-      }
-      else {
-        distSinceProbableLastNode -= distBetweenNodes
-        ++curNodeIndex
-      }
+    let guessIndex = 0;
+    while (guessIndex < starts.length-1 && distSinceProbableLastNode >= distances[guessIndex]) {
+      distSinceProbableLastNode -= distances[guessIndex];
+      guessIndex++;
     }
 
-    let factorBetweenNodes = Math.min(distSinceProbableLastNode / distBetweenNodes, 1);
+    let factorBetweenNodes = Math.min(distSinceProbableLastNode / distances[guessIndex], 1);
 
-    if (curNode && nextNode && factorBetweenNodes) {
-      this.lerpPos(mesh.position, curNode.location, nextNode.location, factorBetweenNodes)
+    if (factorBetweenNodes) {
+      this.lerpPos(mesh.position, starts[guessIndex].location, ends[guessIndex].location, factorBetweenNodes)
     }
   }
 
