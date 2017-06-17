@@ -37,6 +37,7 @@ export class MessageComponent implements OnInit {
   }
 
   sendMessage() {
+    this.message.speedFactor = this.state.speedFactor;
     this.http.post(this.state.BACKEND_URL + '/messages', {'message': this.message}).subscribe(res => {
       this.lastMessage = res.json().message;
       this.http.get(this.state.BACKEND_URL + '/simulations').subscribe(res => {
