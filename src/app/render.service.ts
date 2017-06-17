@@ -15,7 +15,6 @@ export class RenderService {
   private DIFF_2000_1970 = moment('2000-01-01').diff('1970-01-01', 'ms') - 3600000 - 86400000
   private ASTRONOMICAL_UNIT = 149597870.7; //km
   public LIGHT_SPEED_AU = 299792.458 / this.ASTRONOMICAL_UNIT; /*km per sec*/
-  public CAMERA_ZOOM_SPEED = 0.08*4;
 
   public container;
   public camera;
@@ -24,8 +23,8 @@ export class RenderService {
   public renderer;
   public raycaster;
   public viewState = { scale: 1, parallaxes: [], enablePlanetScaling: false }
-  public windowHalfX = window.innerWidth / 2;
-  public windowHalfY = window.innerHeight / 2;
+  public lastAnimation = new Date().getTime();
+  public framerate = 20;
 
   constructor(private planets: PlanetService, private assets: AssetService, private state: StateService) { }
 
@@ -68,9 +67,16 @@ export class RenderService {
   }
 
   animate() {
-    requestAnimationFrame(this.animate.bind(this))
-    this.controls.update();
-    this.render();
+    let now = new Date().getTime();
+    if (now - this.lastAnimation > 1000/this.framerate) {
+      requestAnimationFrame(this.animate.bind(this))
+      this.controls.update();
+      this.render();
+      this.lastAnimation = now;
+    }
+    else {
+      setTimeout(this.animate.bind(this), 500/this.framerate);
+    }
   }
 
   initBackground() {

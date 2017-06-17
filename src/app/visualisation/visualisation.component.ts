@@ -66,9 +66,6 @@ export class VisualisationComponent implements OnInit {
   }
 
   onWindowResize() {
-    this.render.windowHalfX = window.innerWidth / 2
-    this.render.windowHalfY = window.innerHeight / 2
-
     this.render.camera.aspect = window.innerWidth / window.innerHeight
     this.render.camera.updateProjectionMatrix()
 
