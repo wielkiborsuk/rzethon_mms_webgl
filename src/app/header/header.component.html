@@ -3,9 +3,17 @@
     <a class="navbar-brand" routerLink="/"><span class="glyphicon glyphicon-home"></span></a>
     <a class="navbar-brand" (click)="state.advanced = !state.advanced"><span class="glyphicon glyphicon-cog"></span></a>
     <ul class="nav navbar-nav navbar-right" *ngIf="auth.isLoggedIn()">
-      <li class="nav-item">
-        <a class="nav-link" routerLink="/message" routerLinkActive="active">Wiadomości</a>
+      <li class="nav-item dropdown" dropdown>
+          <a id="user-button" class="btn btn-link dropdownToggle" dropdownToggle>
+            Wiadomości <span class="caret"></span>
+          </a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="user-button">
+            <li role="menuitem"><a class="dropdown-item" routerLink="/message">Wyślij</a></li>
+            <li role="menuitem"><a class="dropdown-item" routerLink="/sent">Wysłane</a></li>
+            <li role="menuitem"><a class="dropdown-item" routerLink="/received">Odebrane</a></li>
+          </ul>
       </li>
+
       <li class="nav-item">
         <a class="nav-link" routerLink="/visualisation" routerLinkActive="active">Wizualizacja</a>
       </li>

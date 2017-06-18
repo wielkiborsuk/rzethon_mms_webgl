@@ -1,0 +1,30 @@
+<div class="panel panel-default">
+  <div class="panel-body">
+    <div class="row">
+      <div class="col-sm-8">
+        <h1>Wysłane wiadomości</h1>
+      </div>
+    </div>
+
+    <div>
+      <table class="table table-striped">
+        <tr>
+          <th>ID</th>
+          <th>Odbiorca</th>
+          <th>Treść</th>
+          <th>Wysłane</th>
+          <th>Ostatni raport</th>
+        </tr>
+        <tr *ngFor="let s of simulations">
+          <ng-template [ngIf]="s.message">
+            <td>{{s.id}}</td>
+            <td>{{s.message.receiver}} <br/> {{s.message.destination}}</td>
+            <td>{{s.message.content}}</td>
+            <td>{{s.message.created_at | date:'medium'}}</td>
+            <td>{{s.lastReport.time | date:'medium'}} <br/> {{s.lastReport.name}}</td>
+          </ng-template>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>

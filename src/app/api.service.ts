@@ -17,6 +17,14 @@ export class ApiService {
     return this.http.get(`${this.state.BACKEND_URL}/simulations`, this.getOptions());
   }
 
+  getSentMessages() {
+    return this.http.get(`${this.state.BACKEND_URL}/messages/sent`, this.getOptions());
+  }
+
+  getReceivedMessages() {
+    return this.http.get(`${this.state.BACKEND_URL}/messages/received`, this.getOptions());
+  }
+
   sendMessage(message) {
     return this.http.post(`${this.state.BACKEND_URL}/messages`, message, this.getOptions());
   }
