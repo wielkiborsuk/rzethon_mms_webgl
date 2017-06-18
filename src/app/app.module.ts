@@ -15,6 +15,7 @@ import { PlanetService } from './planet.service';
 import { AssetService } from './asset.service';
 import { RenderService } from './render.service';
 import { StateService } from './state.service';
+import { ApiService } from './api.service';
 import { VisualisationComponent } from './visualisation/visualisation.component';
 
 @NgModule({
@@ -32,7 +33,7 @@ import { VisualisationComponent } from './visualisation/visualisation.component'
     HttpModule,
     BsDropdownModule.forRoot()
   ],
-  providers: [AuthGuardService, AuthService, PlanetService, AssetService, RenderService, StateService],
+  providers: [AuthGuardService, AuthService, PlanetService, AssetService, RenderService, StateService, ApiService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

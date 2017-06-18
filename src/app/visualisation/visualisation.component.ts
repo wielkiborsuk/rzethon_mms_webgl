@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { Http, Response, RequestOptionsArgs, Headers } from "@angular/http";
 import * as _ from 'lodash';
 
 import { PlanetService } from '../planet.service';
 import { AssetService } from '../asset.service';
 import { StateService } from '../state.service';
 import { RenderService } from '../render.service';
+import { ApiService } from '../api.service';
 
 @Component({
   selector: 'app-visualisation',
@@ -16,7 +16,7 @@ export class VisualisationComponent implements OnInit {
   private SIM_FETCH_INTERVAL = 5000;
   private intervalHandle;
 
-  constructor(private render: RenderService, private state: StateService, private assets: AssetService, private http: Http) { }
+  constructor(private render: RenderService, private state: StateService, private assets: AssetService, private api: ApiService) { }
 
   ngOnInit() {
     this.render.container = document.getElementById('container')
@@ -44,7 +44,7 @@ export class VisualisationComponent implements OnInit {
   }
 
   fetchNodes() {
-    this.http.get(`${this.state.BACKEND_URL}/nodes`).subscribe(res => {
+    this.api.getNodes().subscribe(res => {
       for (let node of res.json().nodes) {
         const loc = {
           x: node.location_x,
@@ -58,7 +58,7 @@ export class VisualisationComponent implements OnInit {
   }
 
   fetchSimulation() {
-    this.http.get(`${this.state.BACKEND_URL}/simulations`).subscribe(res => {
+    this.api.getSimulations().subscribe(res => {
       for (let msg of res.json().messages) {
         this.render.onMessageUpdated({message: msg})
       }

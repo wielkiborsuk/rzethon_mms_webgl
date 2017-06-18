@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { Http, Response, RequestOptionsArgs, Headers } from "@angular/http";
 import * as _ from 'lodash';
 
 import { AuthService } from '../auth.service';
 import { StateService } from '../state.service';
+import { ApiService } from '../api.service';
 
 @Component({
   selector: 'app-message',
@@ -23,14 +23,14 @@ export class MessageComponent implements OnInit {
     speedFactor: this.state.speedFactor
   }
 
-  constructor(private http: Http, private auth: AuthService, private state: StateService) { }
+  constructor(private auth: AuthService, private state: StateService, private api: ApiService) { }
 
   ngOnInit() {
     this.fetchDestinations();
   }
 
   fetchDestinations() {
-    this.http.get(this.state.BACKEND_URL + '/nodes').subscribe(res => {
+    this.api.getNodes().subscribe(res => {
       this.nodes = res.json().nodes;
       this.message.destination = this.nodes[0].name;
     });
@@ -38,9 +38,9 @@ export class MessageComponent implements OnInit {
 
   sendMessage() {
     this.message.speedFactor = this.state.speedFactor;
-    this.http.post(this.state.BACKEND_URL + '/messages', {'message': this.message}).subscribe(res => {
+    this.api.sendMessage({'message': this.message}).subscribe(res => {
       this.lastMessage = res.json().message;
-      this.http.get(this.state.BACKEND_URL + '/simulations').subscribe(res => {
+      this.api.getSimulations().subscribe(res => {
         this.lastMessage.deliveryTime = _.find(
           res.json().messages, m => { return m['id'] === this.lastMessage.id }
         )['deliveryTime'];
