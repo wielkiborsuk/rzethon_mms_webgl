@@ -16,6 +16,7 @@ import { AssetService } from './asset.service';
 import { RenderService } from './render.service';
 import { StateService } from './state.service';
 import { ApiService } from './api.service';
+import { CableService } from './cable.service';
 import { VisualisationComponent } from './visualisation/visualisation.component';
 import { SentComponent } from './message/sent/sent.component';
 import { ReceivedComponent } from './message/received/received.component';
@@ -37,7 +38,7 @@ import { ReceivedComponent } from './message/received/received.component';
     HttpModule,
     BsDropdownModule.forRoot()
   ],
-  providers: [AuthGuardService, AuthService, PlanetService, AssetService, RenderService, StateService, ApiService],
+  providers: [AuthGuardService, AuthService, PlanetService, AssetService, RenderService, StateService, ApiService, CableService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

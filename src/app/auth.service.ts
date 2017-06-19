@@ -1,11 +1,14 @@
-import { Injectable } from '@angular/core';
+import { Injectable, EventEmitter } from '@angular/core';
 
 @Injectable()
 export class AuthService {
 
-  private username;
+  private username: string;
+  public userChanged$: EventEmitter<string>;
 
-  constructor() { }
+  constructor() {
+    this.userChanged$ = new EventEmitter();
+  }
 
   isLoggedIn () {
     return !!this.getCurrentUser();
@@ -21,10 +24,12 @@ export class AuthService {
   login (username: string) {
     localStorage.setItem('username', username);
     this.username = username;
+    this.userChanged$.emit(username);
   }
 
   logout () {
     delete this.username;
     localStorage.removeItem('username');
+    this.userChanged$.emit(null);
   }
 }

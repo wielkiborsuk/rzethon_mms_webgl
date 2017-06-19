@@ -30,6 +30,10 @@ export class StateService {
     return this.unixTimeToDayFraction(new Date().getTime());
   }
 
+  getWebsocketUrl() {
+    return this.BACKEND_URL.replace(/^http/, 'ws').concat('/cable');
+  }
+
   /**
    * @param u in milliseconds since 1 January 1970
    * @returns `d`
