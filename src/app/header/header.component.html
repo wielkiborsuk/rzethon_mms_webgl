@@ -34,7 +34,7 @@
       </div>
       <div class="form-group">
         <label for="backend_url">Adres serwera</label>
-        <input class="form-control" type="text" name="backend_url" [(ngModel)]="state.BACKEND_URL" id="backend_url">
+        <input class="form-control" type="text" name="backend_url" [ngModel]="state.getBackendUrl()" (ngModelChange)="state.setBackendUrl($event)" id="backend_url">
       </div>
     </form>
   </div>

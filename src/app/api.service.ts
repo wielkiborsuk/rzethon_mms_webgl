@@ -10,23 +10,23 @@ export class ApiService {
   constructor(private state: StateService, private auth: AuthService, private http: Http) { }
 
   getNodes() {
-    return this.http.get(`${this.state.BACKEND_URL}/nodes`, this.getOptions());
+    return this.http.get(`${this.state.getBackendUrl()}/nodes`, this.getOptions());
   }
 
   getSimulations() {
-    return this.http.get(`${this.state.BACKEND_URL}/simulations`, this.getOptions());
+    return this.http.get(`${this.state.getBackendUrl()}/simulations`, this.getOptions());
   }
 
   getSentMessages() {
-    return this.http.get(`${this.state.BACKEND_URL}/messages/sent`, this.getOptions());
+    return this.http.get(`${this.state.getBackendUrl()}/messages/sent`, this.getOptions());
   }
 
   getReceivedMessages() {
-    return this.http.get(`${this.state.BACKEND_URL}/messages/received`, this.getOptions());
+    return this.http.get(`${this.state.getBackendUrl()}/messages/received`, this.getOptions());
   }
 
   sendMessage(message) {
-    return this.http.post(`${this.state.BACKEND_URL}/messages`, message, this.getOptions());
+    return this.http.post(`${this.state.getBackendUrl()}/messages`, message, this.getOptions());
   }
 
   private getOptions() : RequestOptionsArgs {

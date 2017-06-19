@@ -15,6 +15,7 @@ export class CableService {
   init() {
     this.restart();
     this.auth.userChanged$.subscribe(username => this.restart());
+    this.state.backendChanged$.subscribe(username => this.restart());
   }
 
   restart() {
