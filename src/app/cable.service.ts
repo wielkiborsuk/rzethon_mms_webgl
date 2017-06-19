@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { NotificationsService } from 'ng-notifications';
 import * as ActionCable from 'actioncable';
 
 import { StateService } from './state.service';
@@ -10,7 +11,7 @@ export class CableService {
   private cable;
   private deliveries;
 
-  constructor(private state: StateService, private auth: AuthService) { }
+  constructor(private state: StateService, private auth: AuthService, private notifications: NotificationsService) { }
 
   init() {
     this.restart();
@@ -31,7 +32,19 @@ export class CableService {
 
     this.cable = ActionCable.createConsumer(this.state.getWebsocketUrl());
     if (this.auth.getCurrentUser()) {
-      this.deliveries = this.cable.subscriptions.create({ channel: 'DeliveryChannel', user: this.auth.getCurrentUser() }, { received: data => { console.log(data); } });
+      this.deliveries = this.cable.subscriptions.create(
+        { channel: 'DeliveryChannel', user: this.auth.getCurrentUser() },
+        { received: data => {
+          let msg = '';
+          if (data.report) {
+            let message = data.report;
+            msg = `Twoja wiadomość do ${message.receiver} została dostarczona na ${message.destination}`
+          } else {
+            let message = data.message;
+            msg = `Dostałeś wiadomość od ${message.sender} z ${message.source} o treści: ${message.content}`
+          }
+          this.notifications.success('Dostarczono', msg);
+        } });
     }
   }
 }

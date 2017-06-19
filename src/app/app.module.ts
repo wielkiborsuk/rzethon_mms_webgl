@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { routing } from './app.routes';
 import { BsDropdownModule } from 'ng2-bootstrap';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { SimpleNotificationsModule } from 'ng-notifications';
 
 import { AppComponent } from './app.component';
 import { LoginComponent } from './login/login.component';
@@ -36,7 +38,9 @@ import { ReceivedComponent } from './message/received/received.component';
     BrowserModule,
     FormsModule,
     HttpModule,
-    BsDropdownModule.forRoot()
+    BrowserAnimationsModule,
+    BsDropdownModule.forRoot(),
+    SimpleNotificationsModule.forRoot()
   ],
   providers: [AuthGuardService, AuthService, PlanetService, AssetService, RenderService, StateService, ApiService, CableService],
   bootstrap: [AppComponent]
