@@ -13,7 +13,6 @@ import { ApiService } from '../api.service';
   styleUrls: ['./visualisation.component.css']
 })
 export class VisualisationComponent implements OnInit {
-  private SIM_FETCH_INTERVAL = 5000;
   private intervalHandle;
 
   constructor(private render: RenderService, private state: StateService, private assets: AssetService, private api: ApiService) { }
@@ -32,15 +31,7 @@ export class VisualisationComponent implements OnInit {
 
       this.fetchNodes();
       this.fetchSimulation();
-      this.intervalHandle = setInterval(() => {
-        this.fetchSimulation()
-      }, this.SIM_FETCH_INTERVAL);
     });
-  }
-
-  ngOnDestroy() {
-    clearInterval(this.intervalHandle);
-    delete this.intervalHandle;
   }
 
   fetchNodes() {
