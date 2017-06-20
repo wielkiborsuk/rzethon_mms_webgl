@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, EventEmitter } from '@angular/core';
 import * as moment from 'moment/moment';
 
 @Injectable()
@@ -7,6 +7,7 @@ export class StateService {
   private DAY_MILLISECONDS = 24 * 60 * 60 * 1000;
 
   public BACKEND_URL = 'http://localhost:3000'
+  public backendChanged$: EventEmitter<string>;
   public timeFactor = 1;
   //public d = this.unixTimeToDayFraction(new Date().getTime());
   public prevRenderTime = new Date().getTime();
@@ -20,7 +21,7 @@ export class StateService {
   public speedFactor = 1.0;
   public advanced = false;
 
-  constructor() { }
+  constructor() { this.backendChanged$ = new EventEmitter(); }
 
   intDiv(a, b) {
     return Math.floor(a / b)
@@ -28,6 +29,19 @@ export class StateService {
 
   currentDayFraction() {
     return this.unixTimeToDayFraction(new Date().getTime());
+  }
+
+  getWebsocketUrl() {
+    return this.BACKEND_URL.replace(/^http/, 'ws').concat('/cable');
+  }
+
+  getBackendUrl() {
+    return this.BACKEND_URL;
+  }
+
+  setBackendUrl(backendUrl: string) {
+    this.BACKEND_URL = backendUrl;
+    this.backendChanged$.emit(backendUrl);
   }
 
   /**

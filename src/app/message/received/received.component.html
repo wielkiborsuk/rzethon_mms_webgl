@@ -1,0 +1,28 @@
+<div class="panel panel-default">
+  <div class="panel-body">
+    <div class="row">
+      <div class="col-sm-8">
+        <h1>Odebrane wiadomości</h1>
+      </div>
+    </div>
+
+    <div>
+      <table class="table table-striped">
+        <tr>
+          <th>ID</th>
+          <th>Nadawca</th>
+          <th>Treść</th>
+          <th>Wysłane</th>
+          <th>Dostarczone</th>
+        </tr>
+        <tr *ngFor="let m of messages">
+          <td>{{m.id}}</td>
+          <td>{{m.sender}} <br/> {{m.source}}</td>
+          <td>{{m.content}}</td>
+          <td>{{m.created_at | date:'medium'}}</td>
+          <td>{{m.updated_at | date:'medium'}}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
